@@ -21,8 +21,14 @@ def tune_knn_hyperparameters(x_train, y_train):
     return grid_search.best_estimator_
 
 # Example usage of the tune_knn_hyperparameters function
-#x_train, y_train should be your training data
-best_knn = tune_knn_hyperparameters(x_train, y_train)
+if __name__ == "__main__":
+    from datasetload import split_train_test, normalize_data
+    x_train, x_test, y_train, y_test = split_train_test()
+    x_train_normalized, x_test_normalized = normalize_data(x_train, x_test)
+    
+    best_knn = tune_knn_hyperparameters(x_train_normalized, y_train)
+    classifier = best_knn
 
-# Uncomment the line below to use the tuned classifier instead of the default one
-classifier = best_knn
+    # Evaluate the best KNN
+    accuracy = best_knn.score(x_test_normalized, y_test)
+    print(f"KNN Accuracy: {accuracy:.2f}")

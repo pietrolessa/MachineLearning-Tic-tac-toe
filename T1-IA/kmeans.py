@@ -1,33 +1,43 @@
-from sklearn.naive_bayes import GaussianNB
-from sklearn.model_selection import cross_val_score
 import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.cluster import KMeans
+from datasetload import split_train_test
 
-# Initialize the Gaussian Naive Bayes classifier
-classifier = GaussianNB()
+def find_optimal_clusters(x_train, max_k=10):
+    inertia = []
+    for k in range(1, max_k+1):
+        kmeans = KMeans(n_clusters=k, random_state=0, n_init=10)  # Define n_init explicitamente
+        kmeans.fit(x_train)
+        inertia.append(kmeans.inertia_)
+    
+    # Regra do cotovelo: Plotando a inércia em relação ao número de clusters
+    plt.figure(figsize=(8, 6))
+    plt.plot(range(1, max_k+1), inertia, marker='o')
+    plt.title('Regra do Cotovelo')
+    plt.xlabel('Número de Clusters')
+    plt.ylabel('Inércia')
+    plt.show()
 
-# Optionally, add a function to evaluate the classifier using cross-validation
-def evaluate_classifier(x_train, y_train, cv=5):
-    """
-    Evaluates the GaussianNB classifier using cross-validation.
-    
-    Parameters:
-    - x_train: Training data features
-    - y_train: Training data labels
-    - cv: Number of cross-validation folds (default is 5)
-    
-    Returns:
-    - mean_accuracy: Mean accuracy over the cross-validation folds
-    - std_accuracy: Standard deviation of accuracy over the cross-validation folds
-    """
-    scores = cross_val_score(classifier, x_train, y_train, cv=cv, scoring='accuracy', n_jobs=-1)
-    mean_accuracy = np.mean(scores)
-    std_accuracy = np.std(scores)
-    
-    print(f"Cross-validation mean accuracy: {mean_accuracy:.2f}")
-    print(f"Cross-validation standard deviation: {std_accuracy:.2f}")
-    
-    return mean_accuracy, std_accuracy
+def train_kmeans(x_train, n_clusters=3, random_state=0):
+    kmeans = KMeans(n_clusters=n_clusters, random_state=random_state, n_init=10)  # Define n_init explicitamente
+    kmeans.fit(x_train)
+    return kmeans
 
-# Example usage of the evaluate_classifier function
-# x_train, y_train should be your training data
-# mean_accuracy, std_accuracy = evaluate_classifier(x_train, y_train)
+def main():
+    x_train, y_train, x_test, y_test = split_train_test()
+    
+    # Encontrar o número ótimo de clusters usando a regra do cotovelo
+    find_optimal_clusters(x_train)
+    
+    # Treinar o modelo k-means com o número escolhido de clusters (ajustar conforme necessário)
+    optimal_clusters = int(input("Insira o número de clusters desejado com base na regra do cotovelo: "))
+    kmeans = train_kmeans(x_train, n_clusters=optimal_clusters)
+    
+    print("Centros dos clusters:", kmeans.cluster_centers_)
+    
+    y_pred = kmeans.predict(x_test)
+    
+    print("Rótulos preditos para os dados de teste:", y_pred)
+
+if __name__ == "__main__":
+    main()

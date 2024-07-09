@@ -1,4 +1,5 @@
 from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
 
 # Open and read the dataset file
 with open(r"C:\Users\pietro.lessa\Documents\Pietro Uni 2024-1\IA\T1\T1-IA\T1-IA\dataset\tic-tac-toe.data") as file:
@@ -64,3 +65,10 @@ def split_train_test():
     y_test = y_test_win + y_test_lost + y_test_tie + y_test_game
 
     return (x_train, y_train, x_test, y_test)
+
+# Function to normalize the data
+def normalize_data(x_train, x_test):
+    scaler = StandardScaler()
+    x_train_normalized = scaler.fit_transform(x_train)
+    x_test_normalized = scaler.transform(x_test)
+    return x_train_normalized, x_test_normalized
