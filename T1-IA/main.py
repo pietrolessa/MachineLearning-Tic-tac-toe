@@ -28,7 +28,7 @@ def retrain_until_accuracy(classifier, x_train, y_train, x_val, y_val, threshold
     return accuracy
 
 # Caminho do arquivo de dados ->  MUDE O ARQUIVO DE DATASET DESEJADO PARA TREINO AQUI ! 
-file_path = r"C:\Users\pietro.lessa\Documents\Pietro Uni 2024-1\IA\T1\MachineLearning-Tic-tac-toe\T1-IA\dataset\balanced_tic_tac_toe_dataset_2000_entries.data" 
+file_path = r"C:\Users\pietro.lessa\Documents\Pietro Uni 2024-1\IA\T1\MachineLearning-Tic-tac-toe\T1-IA\dataset\balanced_tic_tac_toe_dataset_500_entries.data" 
 
 # Dividir o dataset em treino, validação e teste
 x_train, y_train, x_val, y_val, x_test, y_test = split_train_val_test(file_path)
