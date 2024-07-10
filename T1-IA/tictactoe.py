@@ -1,31 +1,13 @@
 from datasetload import split_train_val_test, normalize_data
-from knn import tune_knn_hyperparameters
-from sklearn.preprocessing import StandardScaler
+from knn import classifier
 
 # Caminho do arquivo de dados
 file_path = r"C:\Users\pietro.lessa\Documents\Pietro Uni 2024-1\IA\T1\MachineLearning-Tic-tac-toe\T1-IA\dataset\balanced_tic_tac_toe_dataset_2000_entries.data"
 
-# Carregar e preparar os dados
 x_train, y_train, x_val, y_val, x_test, y_test = split_train_val_test(file_path)
-x_train_normalized, x_val_normalized, x_test_normalized = normalize_data(x_train, x_val, x_test)
+x_train_normalized, x_val_normalized, x_test_normalized, scaler = normalize_data(x_train, x_val, x_test)
 
-# Treinar o classificador k-NN com os melhores hiperparâmetros
-classifier = tune_knn_hyperparameters(x_train_normalized, y_train)
 classifier.fit(x_train_normalized, y_train)
-
-# Verificação de treinamento
-print(f"Acurácia no conjunto de validação: {classifier.score(x_val_normalized, y_val):.2f}")
-print(f"Acurácia no conjunto de teste: {classifier.score(x_test_normalized, y_test):.2f}")
-
-# Crie e ajuste o scaler no conjunto de treinamento normalizado
-scaler = StandardScaler().fit(x_train_normalized)
-
-# Teste manual do classificador
-known_board = [1, 1, 1, 2, 2, 0, 0, 0, 0]  # Exemplo de tabuleiro conhecido
-known_board_normalized = scaler.transform([known_board])  # Normalizar o exemplo
-result = classifier.predict(known_board_normalized)[0]
-label_map = {1: 'x', 2: 'o', 3: 'tie', 4: 'ongoing'}
-print(f"Resultado esperado: x, Resultado obtido: {label_map.get(result, 'Resultado inesperado')}")
 
 board = ["b", "b", "b",
          "b", "b", "b",
@@ -59,31 +41,28 @@ def player_position():
     display_board()
 
 def transform_board():
-    transformed = [0 if s == 'b' else 1 if s == 'X' else 2 for s in board]
-    print(f"Tabuleiro transformado: {transformed}")  # Adicionado para debug
-    return transformed
+    return [0 if s == 'b' else 1 if s == 'X' else 2 for s in board]
 
 def check_status_from_ai():
     global game_on
     changed_board = transform_board()
+    print(f"Tabuleiro transformado: {changed_board}")  # Adicionado para debug
     changed_board_normalized = scaler.transform([changed_board])  # Normalizar a entrada
+    label_map = {1:"winX", 2:"wincircle", 3:"tie", 4:"game"}
     result = classifier.predict(changed_board_normalized)[0]
-    label_map = {1: 'x', 2: 'o', 3: 'tie', 4: 'ongoing'}
-    result_label = label_map.get(result, 'Resultado inesperado')
-    print(f"Resultado da IA: {result_label}")  # Adicionado para debug
-    if result_label == 'ongoing':
+    #result_label = label_map.get(result, "Resultado inesperado")
+    print(f"Resultado da IA: {result}")  # Adicionado para debug
+    if result == 'game':
         print('Ainda há jogo!')
-    elif result_label == 'x':
+    elif result == 'winX':
         print('X venceu!')
         game_on = False
-    elif result_label == 'o':
+    elif result == 'wincircle':
         print('O venceu!')
         game_on = False
-    elif result_label == 'tie':
+    elif result == 'tie':
         print('Empate!')
         game_on = False
-    else:
-        print('Resultado inesperado!')
 
 def flip_player():
     global current_player

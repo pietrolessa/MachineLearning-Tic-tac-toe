@@ -24,9 +24,12 @@ def tune_decision_tree(x_train, y_train):
 # Função principal para teste
 if __name__ == "__main__":
     from datasetload import split_train_val_test, normalize_data
-
-    x_train, y_train, x_val, y_val, x_test, y_test = split_train_val_test()
-    x_train_normalized, x_val_normalized, x_test_normalized = normalize_data(x_train, x_val, x_test)
+    
+    # Use the appropriate file path for your dataset
+    file_path = r"C:\Users\pietro.lessa\Documents\Pietro Uni 2024-1\IA\T1\MachineLearning-Tic-tac-toe\T1-IA\dataset\balanced_tic_tac_toe_dataset_2000_entries.data"
+    
+    x_train, y_train, x_val, y_val, x_test, y_test = split_train_val_test(file_path)
+    x_train_normalized, x_val_normalized, x_test_normalized, scaler = normalize_data(x_train, x_val, x_test)
     
     print("Treinando a árvore de decisão...")
     best_tree = tune_decision_tree(x_train_normalized, y_train)

@@ -8,6 +8,7 @@ def load_data(file_path):
     return file_data
 
 # Função para carregar e preprocessar o dataset
+# Função para carregar e preprocessar o dataset
 def load_dataset(file_data):
     preprocessed_data = []
     for line in file_data:
@@ -19,6 +20,7 @@ def load_dataset(file_data):
     attributes = [d[0] for d in preprocessed_data]  # Extrai apenas os estados do tabuleiro
     classes = [d[1] for d in preprocessed_data]  # Extrai apenas os resultados do jogo
     return attributes, classes
+
 
 # Função para dividir o dataset em conjuntos de treino, validação e teste
 def split_train_val_test(file_path):
@@ -41,13 +43,13 @@ def normalize_data(x_train, x_val, x_test):
     x_train_normalized = scaler.fit_transform(x_train)  # Ajusta e transforma os dados de treino
     x_val_normalized = scaler.transform(x_val)  # Transforma os dados de validação
     x_test_normalized = scaler.transform(x_test)  # Transforma os dados de teste
-    return x_train_normalized, x_val_normalized, x_test_normalized  # Retorna os dados normalizados
+    return x_train_normalized, x_val_normalized, x_test_normalized, scaler  # Retorna os dados normalizados e o scaler
 
 # Função principal atualizada para testes
 if __name__ == "__main__":
     file_path = r"C:\Users\pietro.lessa\Documents\Pietro Uni 2024-1\IA\T1\MachineLearning-Tic-tac-toe\T1-IA\dataset\tic_tac_toe_dataset2.data"
     x_train, y_train, x_val, y_val, x_test, y_test = split_train_val_test(file_path)  # Divide o dataset
-    x_train_normalized, x_val_normalized, x_test_normalized = normalize_data(x_train, x_val, x_test)  # Normaliza os dados
+    x_train_normalized, x_val_normalized, x_test_normalized, scaler = normalize_data(x_train, x_val, x_test)  # Normaliza os dados
     # Imprime os primeiros 5 exemplos de cada conjunto para verificação
     print(f"x_train_normalized: {x_train_normalized[:5]}")
     print(f"x_val_normalized: {x_val_normalized[:5]}")
