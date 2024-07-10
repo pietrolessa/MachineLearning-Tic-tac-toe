@@ -56,4 +56,4 @@ def save_dataset(dataset, file_path):
 if __name__ == "__main__":
     target_size_per_class = 500  # Número desejado de exemplos por classe
     dataset = generate_balanced_dataset(target_size_per_class)
-    save_dataset(dataset, 'balanced_tic_tac_toe_dataset_2000_entries.data')
+    save_dataset(dataset, 'balanced_tic_tac_toe_dataset_5000_entries.data')
