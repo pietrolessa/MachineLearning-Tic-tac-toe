@@ -1,0 +1,47 @@
+import random
+
+def generate_board():
+    # Gera um tabuleiro vazio
+    return ['b'] * 9
+
+def make_move(board, player, position):
+    # Faz um movimento no tabuleiro
+    if board[position] == 'b':
+        board[position] = player
+    return board
+
+def check_winner(board):
+    # Verifica se há um vencedor
+    win_conditions = [(0, 1, 2), (3, 4, 5), (6, 7, 8), 
+                      (0, 3, 6), (1, 4, 7), (2, 5, 8),
+                      (0, 4, 8), (2, 4, 6)]
+    for condition in win_conditions:
+        if board[condition[0]] == board[condition[1]] == board[condition[2]] != 'b':
+            return board[condition[0]]
+    if 'b' not in board:
+        return 'tie'
+    return None
+
+def play_game():
+    board = generate_board()
+    current_player = 'x'
+    while check_winner(board) is None:
+        move = random.choice([i for i in range(9) if board[i] == 'b'])
+        board = make_move(board, current_player, move)
+        current_player = 'o' if current_player == 'x' else 'x'
+    return board, check_winner(board)
+
+def generate_dataset(num_games):
+    dataset = []
+    for _ in range(num_games):
+        board, result = play_game()
+        dataset.append(','.join(board) + ',' + result)
+    return dataset
+
+# Gerar 1000 exemplos de jogos
+dataset = generate_dataset(1000)
+
+# Salvar o dataset em um arquivo
+with open('tic_tac_toe_dataset2.data', 'w') as file:
+    for line in dataset:
+        file.write(line + '\n')

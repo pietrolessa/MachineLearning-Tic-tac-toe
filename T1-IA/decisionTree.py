@@ -1,50 +1,40 @@
-import pandas as pd
+from sklearn.metrics import classification_report, confusion_matrix
 from sklearn.tree import DecisionTreeClassifier
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score, classification_report
-from sklearn.utils import resample
-from datasetload import split_train_test
+from sklearn.model_selection import GridSearchCV
 
-# Load and resample dataset
-def load_and_resample_dataset():
-    x_train, x_test, y_train, y_test = split_train_test()
+# Função para treinar a árvore de decisão
+def train_decision_tree(x_train, y_train):
+    tree = DecisionTreeClassifier()
+    tree.fit(x_train, y_train)
+    return tree
 
-    df_train = pd.DataFrame(x_train)
-    df_train['class'] = y_train
+# Função para ajustar os hiperparâmetros da árvore de decisão
+def tune_decision_tree(x_train, y_train):
+    tree = DecisionTreeClassifier()
+    param_grid = {
+        'max_depth': [None, 10, 20, 30, 40, 50],
+        'min_samples_split': [2, 10, 20],
+        'min_samples_leaf': [1, 5, 10]
+    }
+    grid_search = GridSearchCV(tree, param_grid, cv=5, scoring='accuracy')
+    grid_search.fit(x_train, y_train)
+    print("Melhores parâmetros encontrados:", grid_search.best_params_)
+    return grid_search.best_estimator_
 
-    # Separar o dataset por classes
-    df_game = df_train[df_train['class'] == 'game']
-    df_win = df_train[df_train['class'] == 'win']
-    df_lost = df_train[df_train['class'] == 'lost']
-    df_tie = df_train[df_train['class'] == 'tie']
+# Função principal para teste
+if __name__ == "__main__":
+    from datasetload import split_train_val_test, normalize_data
 
-    # Aplicar oversampling nas classes minoritárias
-    df_win_upsampled = resample(df_win, replace=True, n_samples=len(df_game), random_state=42)
-    df_lost_upsampled = resample(df_lost, replace=True, n_samples=len(df_game), random_state=42)
-    df_tie_upsampled = resample(df_tie, replace=True, n_samples=len(df_game), random_state=42)
-
-    # Concatenar os datasets reamostrados
-    df_balanced = pd.concat([df_game, df_win_upsampled, df_lost_upsampled, df_tie_upsampled])
-
-    return df_balanced
-
-# Carregar e reamostrar o dataset
-df_balanced = load_and_resample_dataset()
-
-# Dividir o dataset em conjuntos de treino e teste
-X = df_balanced.drop('class', axis=1)
-y = df_balanced['class']
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42, stratify=y)
-
-# Treinar o classificador de Árvores de Decisão
-decision_tree_classifier = DecisionTreeClassifier(random_state=42)
-decision_tree_classifier.fit(X_train, y_train)
-
-# Avaliar o modelo
-y_pred = decision_tree_classifier.predict(X_test)
-accuracy = accuracy_score(y_test, y_pred)
-report = classification_report(y_test, y_pred)
-
-print(f"Accuracy: {accuracy:.2f}")
-print("Classification Report:")
-print(report)
+    x_train, y_train, x_val, y_val, x_test, y_test = split_train_val_test()
+    x_train_normalized, x_val_normalized, x_test_normalized = normalize_data(x_train, x_val, x_test)
+    
+    print("Treinando a árvore de decisão...")
+    best_tree = tune_decision_tree(x_train_normalized, y_train)
+    print(f"Acurácia no conjunto de validação: {best_tree.score(x_val_normalized, y_val):.2f}")
+    
+    print("Avaliando no conjunto de teste...")
+    y_pred = best_tree.predict(x_test_normalized)
+    print("Matriz de Confusão:")
+    print(confusion_matrix(y_test, y_pred))
+    print("Relatório de Classificação:")
+    print(classification_report(y_test, y_pred))
